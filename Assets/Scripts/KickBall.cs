@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using LionStudios;
 
 public class KickBall : MonoBehaviour
 {
@@ -269,7 +268,6 @@ public class KickBall : MonoBehaviour
         //Debug.Log(WindSpeed);
         inAir = false;
         returned = true;
-        Analytics.Events.LevelFailed(PlayerPrefs.GetInt("level", 1));
     }
     private void OnCollisionEnter(Collision collision)
     {

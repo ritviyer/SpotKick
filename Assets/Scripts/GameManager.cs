@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using LionStudios;
 
 public class GameManager : MonoBehaviour
 {
@@ -33,18 +32,12 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         EventManager.onStartGame += ChooseLevel;
-        EventManager.onRefreshGame += Analy;
         EventManager.onLevelComplete += LevelUp;
     }
     private void OnDisable()
     {
         EventManager.onStartGame -= ChooseLevel;
-        EventManager.onRefreshGame -= Analy;
         EventManager.onLevelComplete -= LevelUp;
-    }
-    void Analy()
-    {
-        Analytics.Events.LevelRestart(PlayerPrefs.GetInt("level", 1));
     }
     void ChooseLevel()
     {
@@ -63,7 +56,6 @@ public class GameManager : MonoBehaviour
         }
 
         int level = PlayerPrefs.GetInt("level", 1);
-        Analytics.Events.LevelStarted(level);
 
         levelText.text = "Level " + level.ToString();
         if(level==1)
@@ -82,7 +74,6 @@ public class GameManager : MonoBehaviour
     }
     void LevelUp()
     {
-        Analytics.Events.LevelComplete(PlayerPrefs.GetInt("level", 1));
         PlayerPrefs.SetInt("level", PlayerPrefs.GetInt("level",1) + 1);
 
         var winText = new List<string>()
