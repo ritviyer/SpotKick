@@ -8,11 +8,16 @@ public class Ball : MonoBehaviour
     Vector3 startPos;
     Quaternion startRotation;
     bool isLevelComplete = false;
+    float initialDrag;
+    static int totalBalls = 1;
+
     void Start()
     {
+        totalBalls = FindObjectsOfType<Ball>().Length;
         rb = GetComponent<Rigidbody>();
         startPos = transform.position;
         startRotation = transform.rotation;
+        initialDrag = rb.drag;
     }
     private void OnEnable()
     {
@@ -22,8 +27,29 @@ public class Ball : MonoBehaviour
     {
         EventManager.onRefreshGame -= RefreshLevel;
     }
+    private void Update()
+    {
+        if(Time.frameCount%5 == 0)
+        {
+            if (rb.velocity.magnitude < 1 && rb.velocity.magnitude >= 0.05)
+            {
+                rb.drag += 0.01f;
+                rb.angularVelocity *= 0.95f;
+            }
+            else
+                rb.drag = initialDrag;
+
+            if (rb.velocity.magnitude < 0.05)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+        }
+    }
     void RefreshLevel() 
     {
+        totalBalls = FindObjectsOfType<Ball>().Length;
+        isLevelComplete = false;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         transform.position = startPos;
@@ -35,8 +61,10 @@ public class Ball : MonoBehaviour
         {
             if (!isLevelComplete)
             {
+                totalBalls--;
                 isLevelComplete = true;
-                EventManager.LevelComplete();
+                if (totalBalls == 0)
+                    EventManager.LevelComplete();
             }
         }
     }

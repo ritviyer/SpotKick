@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     // Game Menu Varaibles
     [SerializeField] Text levelText;
     [SerializeField] GameObject gameMenu;
+    [SerializeField] GameObject themeMenu;
 
     //GameMenu LevelUp Variables
     [SerializeField] GameObject levelUpCanvas;
@@ -24,28 +25,45 @@ public class GameManager : MonoBehaviour
 
     //Level Variables
     [SerializeField] GameObject levels;
+    bool unlockedNewTheme = false;
+
     void Start()
     {
         LeanTween.scale(playText.gameObject, tweenSize, 0.5f).setLoopPingPong();
         nextLevelTextScale = nextLevelText.transform.localScale;
+        unlockedNewTheme = false;
     }
     private void OnEnable()
     {
-        EventManager.onStartGame += ChooseLevel;
+        EventManager.onStartGame += StartLevel;
         EventManager.onLevelComplete += LevelUp;
     }
     private void OnDisable()
     {
-        EventManager.onStartGame -= ChooseLevel;
+        EventManager.onStartGame -= StartLevel;
         EventManager.onLevelComplete -= LevelUp;
     }
-    void ChooseLevel()
+    public void GoToThemeMenu()
     {
         if (mainMenu.activeSelf)
         {
             LeanTween.cancel(playText.gameObject);
             mainMenu.SetActive(false);
         }
+
+        if (!themeMenu.activeSelf)
+            themeMenu.SetActive(true);
+    }
+    public void SelectLevel(int l)
+    {
+        GlobalVariables.currentLevel = l;
+        EventManager.StartGame();
+    }
+    void StartLevel()
+    {
+        if (themeMenu.activeSelf)
+            themeMenu.SetActive(false);
+
         if (!gameMenu.activeSelf)
             gameMenu.SetActive(true);
 
@@ -55,26 +73,45 @@ public class GameManager : MonoBehaviour
             levelUpCanvas.SetActive(false);
         }
 
-        int level = PlayerPrefs.GetInt("level", 1);
+        int level = GlobalVariables.currentLevel;
 
         levelText.text = "Level " + level.ToString();
         if(level==1)
-            levels.transform.GetChild(0).gameObject.SetActive(true);
+            levels.transform.Find("Level"+level.ToString()).gameObject.SetActive(true);
         else
         {
             if (levels.transform.childCount < level)
             {
-                PlayerPrefs.SetInt("level", PlayerPrefs.GetInt("level") - 1);
-                level -= 1;
-                Refresh();
+                PlayerPrefs.SetInt("level", PlayerPrefs.GetInt("level", 1) - 1);
+                unlockedNewTheme = false;
+                BackToMainMenu();
             }
-            levels.transform.GetChild(level-2).gameObject.SetActive(false);
-            levels.transform.GetChild(level-1).gameObject.SetActive(true);
+            levels.transform.Find("Level" + (level-1).ToString()).gameObject.SetActive(false);
+            levels.transform.Find("Level" + level.ToString()).gameObject.SetActive(true);
+            if (unlockedNewTheme)
+            {
+                unlockedNewTheme = false;
+                FindObjectOfType<CustomizationManager>().SelectActiveTheme();
+            }
         }
     }
     void LevelUp()
     {
-        PlayerPrefs.SetInt("level", PlayerPrefs.GetInt("level",1) + 1);
+        GlobalVariables.currentLevel += 1;
+        //FindObjectOfType<GPGController>().AddScoreToLeaderBorad((long)GlobalVariables.currentLevel);
+
+        bool isNewTheme = false;
+        if (GlobalVariables.currentLevel > PlayerPrefs.GetInt("level", 1))
+        {
+            PlayerPrefs.SetInt("level", GlobalVariables.currentLevel);
+            if (PlayerPrefs.GetInt("level", 1) % 20 == 1)
+            {
+                unlockedNewTheme = true;
+                isNewTheme = true;
+            }
+        }
+        else if (GlobalVariables.currentLevel % 20 == 1)
+            unlockedNewTheme = true;
 
         var winText = new List<string>()
                     {
@@ -90,7 +127,10 @@ public class GameManager : MonoBehaviour
                     };
         int random = Random.Range(0, winText.Count);
         levelUpCanvas.SetActive(true);
-        winLoseText.text = winText[random];
+        if (isNewTheme)
+            winLoseText.text = "Congratulations!" +System.Environment.NewLine+ "New theme unlocked.";
+        else    
+            winLoseText.text = winText[random];
         nextLevelText.transform.localScale = nextLevelTextScale;
         LeanTween.scale(nextLevelText.gameObject, tweenSize, 0.5f).setLoopPingPong();
     }

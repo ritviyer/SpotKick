@@ -9,6 +9,7 @@ public class KickBall : MonoBehaviour
     Vector3 force;
     float distance;
     Vector3 startpos;
+    Vector3 cursorStartPos;
     Quaternion startRotation;
     public Vector3 WindSpeed;
 
@@ -20,15 +21,21 @@ public class KickBall : MonoBehaviour
     public bool inAir = false;
 
     bool touchOnBall = false;
-    [SerializeField] Animator animator;
+    [SerializeField] GameObject players;
+    Animator animator;
 
     private LineRenderer line;
     [SerializeField] GameObject cursor;
+
+
+    int attempts;
+    int currentLevel;
 
     void Start()
     {
         dragdistance = transform.localScale.x * 20f;
         startpos = transform.position;
+        cursorStartPos = cursor.transform.position;
         startRotation = transform.rotation;
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
@@ -50,18 +57,41 @@ public class KickBall : MonoBehaviour
     }
     void EnableKick()
     {
+        for(int i = 0; i <players.transform.childCount; i++)
+        {
+            if (players.transform.GetChild(i).gameObject.activeSelf)
+            {
+                animator = players.transform.GetChild(i).GetComponent<Animator>();
+                break;
+            }
+        }
+        attempts = 0;
+        currentLevel = GlobalVariables.currentLevel;
         kickEnabled = true;
         StopAllCoroutines();
         StartCoroutine(Returnball(0f));
         int level = PlayerPrefs.GetInt("level", 1);
-        if (level == 1)
+        if (level == 1 || level == 2)
         {
             cursor.SetActive(true);
-            LeanTween.move(cursor, transform.position + Vector3.back*2f, 1f).setLoopType(LeanTweenType.linear);
+            cursor.transform.position = cursorStartPos;
+            LeanTween.move(cursor, cursor.transform.position + Vector3.back*2f, 1f).setLoopType(LeanTweenType.linear);
         }
     }
     void LevelUp()
     {
+        int stars = PlayerPrefs.GetInt("level" + currentLevel.ToString() + "stars", 0);
+        int currStars;
+        if (attempts == 1)
+            currStars = 3;
+        else if (attempts <= 3)
+            currStars = 2;
+        else
+            currStars = 1;
+
+        if(currStars>stars)
+            PlayerPrefs.SetInt("level" + currentLevel.ToString() + "stars", currStars);
+
         kickEnabled = false;
         StopAllCoroutines();
         animator.SetBool("levelComplete", true);
@@ -131,69 +161,6 @@ public class KickBall : MonoBehaviour
             return true;
         return false;
     }
-    void PlayerOld()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit) && hit.transform.gameObject.name == "CueBall")
-            {
-                touchOnBall = true;
-                firstpos = Camera.main.WorldToScreenPoint(hit.transform.position);
-            }
-        }
-        if (Input.GetMouseButton(0) && touchOnBall)
-        {
-            lastpos = Input.mousePosition;
-            Ray mouseRay = Camera.main.ScreenPointToRay(lastpos);
-            RaycastHit mouseHit;
-
-
-            if (Physics.Raycast(mouseRay, out mouseHit, Mathf.Infinity))
-            {
-                Vector3 lineWantedPosition = new Vector3(mouseHit.point.x, mouseHit.point.y, mouseHit.point.z);
-                Ray lineRay = new Ray(transform.position, lineWantedPosition);
-                line.positionCount = 2;
-                line.SetPosition(0, lineRay.origin);
-                //line.SetPosition(1, lineWantedPosition);
-                force = CalculateForce(firstpos, lastpos);
-                Vector3 ballVelocity = (force / rb.mass) * 0.02f;
-                Vector3 eP = GetAimPosition(lineRay.origin, lineWantedPosition);
-                line.SetPosition(1, eP);
-
-                ////Ray rayReflect = new Ray(lineRay.origin, ballVelocity);
-                //Vector3 normaleP = (eP - lineRay.origin).normalized;
-                //Ray rayReflect = new Ray(lineRay.origin, normaleP);
-                //RaycastHit hit;
-                //if (Physics.Raycast(rayReflect, out hit, Mathf.Infinity))
-                //{
-                //    line.positionCount = 3;
-                //    Vector3 reflectAngle = Vector3.Reflect(ballVelocity, hit.normal);
-                //    //line.SetPositions(new[] { lineRay.origin, pointVelocity, reflectAngle });
-                //    line.SetPositions(new[] { lineRay.origin, hit.point, reflectAngle });
-                //}
-                if (ballVelocity.z >= 0)
-                {
-                    line.enabled = true;
-                }
-                else
-                    line.enabled = false;
-            }
-        }
-        if (Input.GetMouseButtonUp(0) && touchOnBall)
-        {
-            touchOnBall = false;
-
-            if ((System.Math.Abs(force.x) > dragdistance || System.Math.Abs(force.z) > dragdistance) && force.z >= 0)
-            {
-                animator.gameObject.transform.position = new Vector3(0f, 1f, -9.25f);
-                animator.SetBool("toKick", true);
-                line.enabled = false;
-            }
-        }
-    }
     Vector3 GetAimPosition(Vector3 startPoint ,Vector3 endPoint)
     {
         //endPoint.y = startPoint.y;
@@ -246,6 +213,7 @@ public class KickBall : MonoBehaviour
 
     public void AddForceToBall()
     {
+        attempts += 1;
         FindObjectOfType<SoundManager>().PlayKickMusic();
         rb.isKinematic = false;
         rb.AddForce(transform.forward*(distance/1.5f), ForceMode.Impulse);
