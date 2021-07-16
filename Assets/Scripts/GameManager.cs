@@ -75,6 +75,8 @@ public class GameManager : MonoBehaviour
 
         int level = GlobalVariables.currentLevel;
 
+        TinySauce.OnGameStarted(levelNumber: level.ToString());
+
         levelText.text = "Level " + level.ToString();
         if(level==1)
             levels.transform.Find("Level"+level.ToString()).gameObject.SetActive(true);

@@ -89,7 +89,9 @@ public class KickBall : MonoBehaviour
         else
             currStars = 1;
 
-        if(currStars>stars)
+        TinySauce.OnGameFinished(true, currStars, levelNumber: currentLevel.ToString());
+
+        if (currStars>stars)
             PlayerPrefs.SetInt("level" + currentLevel.ToString() + "stars", currStars);
 
         kickEnabled = false;

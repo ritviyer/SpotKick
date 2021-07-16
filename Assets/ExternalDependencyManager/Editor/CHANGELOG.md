@@ -1,147 +1,3 @@
-# Version 1.2.162 - Nov 19, 2020
-* Version Handler - Improved #413 by preventing Version Handler from running
-  from static constructor when it is disabled.
-* Package Manager Resolver - Remove GPR
-
-# Version 1.2.161 - Oct 12, 2020
-* Android Resolver - Fixed the issue that Android Resolver does not resolve
-  again before build in Unity 2020 if it failed to resolve previously.
-
-# Version 1.2.160 - Sep 30, 2020
-* Android Resolver - Fixed a regression that gradleResolver can be null until
-  Initialize() is called.
-* Android Resolver - Fixed a regression that Android Resolver failed in Unity
-  2019.3+ due to `gradleTemplate.properties` not enabled when
-  `mainTemplate.gradle` is not enabled at all.
-
-# Version 1.2.159 - Sep 11, 2020
-* Android Resolver - Fixed #322 where the Unity editor will lose its target SDK
-  setting between Unity restarts if `>28` is selected in 2019.  This is due to
-  Unity AndroidSdkVersions enum does not contain values above 28.
-* Android Resolver - Fixed #360 where building Android app with Untiy 2019.3+
-  may fail due to Jetifier and AndroidX not enabled properly in generated
-  Gradle project. This fix requires the user to enable
-  `Custom Gradle Properties Template` found under
-  `Player Settings > Settings for Android > Publishing Settings`.
-
-# Version 1.2.158 - Sep 3, 2020
-* Version Handler: Fixed editor freeze when `-executeMethod` is used in
-  non-batch mode.
-* Android Resolver: Normalized file paths when generating local Maven repo
-  since the path may contains a mix of forward and backward slash on Windows.
-* Export Unity Package: Fixed generation of .unitypackage with tarfile on
-  Windows.
-
-# Version 1.2.157 - Aug 6, 2020
-* Android Resolver: Delay initialization until active build target is Android
-  and the editor is not in play mode.
-* iOS Resolver: Delay initialization until active build target is iOS
-  and the editor is not in play mode.
-* Export Unity Package: Workaround directory creation racy if multiple export
-  operations are spawned at the same time.
-
-# Version 1.2.156 - June 10, 2020
-* All: Described EDM4U analytics data usage in readme.
-* Android Resolver: Fixed that the generated local repo assets contains
-  redundent labels which are causing Version Handler to failed while
-  uninstalling packages.
-* Android Resolver: Fixed that the repo url injected into mainTemplate.gradle
-  is incorrect when Unity is configured to export gradle project.
-* Android Resolver: Limited to only create local Maven repo when the source
-  repo contains ".srcaar" file.
-
-# Version 1.2.155 - May 14, 2020
-* All: Fixed compiler error when build with Unity 5.4 or below due to the
-  usage of Rect.zero.
-* All: Ignore cases when checking command line arguments.
-
-# Version 1.2.154 - May 14, 2020
-* All: Make each MultiSelectWindow for different purposes to have its own
-  unique window.
-* All: Replace all dialog with DialogWindow which is implemented from
-  EditorWindow.
-* Package Manager Resolver: Clarify how manifest.json will be changed in Package
-  Manager Resolver window.
-
-# Version 1.2.153 - Apr 24, 2020
-* Android Resolver: Fixed an exception when repainting the Android resolution
-  window in Unity 2019.3.x.
-
-# Version 1.2.152 - Apr 17, 2020
-* Version Handler: Fixed exception when waiting for enabled editor DLLs to
-  load.
-* Android Resolver: Fixed regression when using a Custom Gradle Template
-  on Windows.
-
-# Version 1.2.151 - Apr 16, 2020
-## Bug Fixes
-* Version Handler: When waiting for newly enabled editor DLLs to load, ignore
-  all DLLs that do not have a file-system location.
-* Android Resolver: Fixed resolution when using a Custom Gradle Template with
-  libraries stored in a local maven repository distributed with a plugin
-  installed with the Unity Package Manager.
-
-# Version 1.2.150 - Apr 9, 2020
-## Bug Fixes
-* All: The new packaging script when run on MacOS was generating a
-  .unitypackage archive that could not be read by Unity on Windows.
-  This release simply repackages the plugin with tar/gzip to fix the problem.
-
-# Version 1.2.149 - Apr 8, 2020
-## Bug Fixes
-* Package Manager Resolver: Fixed spurious error message when resuming
-  migration after installing a UPM package.
-
-# Version 1.2.148 - Apr 8, 2020
-## Bug Fixes
-* Package Manager Resolver: Fixed an exception when resuming migration
-  after installing a UPM package.
-
-# Version 1.2.147 - Apr 8, 2020
-## Bug Fixes
-* Version Handler: Fixed alias traversal bug which caused problems when
-  migrating from installed .unitypackage files to UPM packages.
-
-# Version 1.2.146 - Apr 8, 2020
-## Bug Fixes
-* Version Handler: Fixed exception in manifest parsing when a manifest is
-  detected with no aliases.
-
-# Version 1.2.145 - Apr 2, 2020
-## New Features
-* Package Manager Resolver: Added a method to migrate Version Handler
-  managed packages installed via `.unitypackage` to Unity Package Manager
-  packages. This is initially used to migrate the External Dependency Manager
-  to UPM.
-
-## Changes
-* All: Verbose logging is now no longer automatically enabled in batch mode
-  across all components. Instead logging can be configured using each
-  component's verbose logging setting or by using the `-gvh_log_debug` command
-  line flag when starting Unity.
-* Version Handler: Sped up version handler updates when the app domain isn't
-  reloaded.
-
-## Bug Fixes
-* Version Handler: Fixed the display of the obsolete files clean up dialog
-  when the asset database refreshes.
-* Version Handler: Improved reliability of callback from
-  the VersionHandler.UpdateCompleteMethods event when an asset database
-  refresh occurs.
-* Version Handler: Fixed duplicate exportPath labels when 'Assets/' is the
-  root of paths assigned to files.
-* Version Handler: Handle empty lines in manifest files.
-
-# Version 1.2.144 - Mar 23, 2020
-## Changed
-* iOS Resolver: Removed the ability to configure the Xcode target a Cocoapod
-  is added to.
-
-## Bug Fixes
-* iOS Resolver: Reverted support for adding Cocoapods to multiple targets as
-  it caused a regression (exception thrown during post-build step) in some
-  versions of Unity.
-
 # Version 1.2.143 - Mar 20, 2020
 ## Bug Fixes
 * Android Resolver: Fixed caching of resolution state which was causing
@@ -149,7 +5,7 @@
 
 # Version 1.2.142 - Mar 19, 2020
 ## Changes
-* Package Manager Resolver: Enabled auto-add by default.
+* Unity Package Manager Resolver: Enabled auto-add by default.
 
 # Version 1.2.141 - Mar 19, 2020
 ## Bug Fixes
@@ -172,7 +28,7 @@
 
 # Version 1.2.138 - Mar 17, 2020
 ## New Features
-* Package Manager Resolver: Added the Package Manager Resolver
+* Unity Package Manager Resolver: Added the Unity Package Manager Resolver
   component that allows developers to easily boostrap Unity Package Manager
   (UPM) registry addition using unitypackage plugins.
 * Version Handler: Added a window that allows plugins to managed by the

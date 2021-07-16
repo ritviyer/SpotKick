@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 40dd6e098def94adfa29ff3e9c0b30ba
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tsDebugUIPrefab: {fileID: 5549150780640145141, guid: ef7fb689f1ca94381904713abd1ee14a,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
